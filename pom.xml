@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.fishydarwin.fractalexplorer</groupId>
+    <artifactId>FractalExplorer</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.7.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>me.fishydarwin.fractalexplorer.Main</mainClass>
+                            <generateInstaller>true</generateInstaller>
+                            <administratorRequired>false</administratorRequired>
+                            <displayName>Fractal Explorer</displayName>
+                            <platform>auto</platform>
+                            <macConfig>
+                                <appId>me.fishydarwin.fractalexplorer</appId>
+                                <icnsFile>${project.basedir}/src/main/resources/icon.icns</icnsFile>
+                                <generateDmg>true</generateDmg>
+                                <generatePkg>false</generatePkg>
+                                <backgroundImage>${project.basedir}/src/main/resources/dmg_installer_bg.png</backgroundImage>
+                                <iconSize>64</iconSize>
+                                <textSize>12</textSize>
+                                <iconX>52</iconX>
+                                <iconY>64</iconY>
+                                <appsLinkIconX>52</appsLinkIconX>
+                                <appsLinkIconY>196</appsLinkIconY>
+                                <volumeIcon>${project.basedir}/src/main/resources/dmg_installer.icns</volumeIcon>
+                                <volumeName>FractalExplorer-Volume</volumeName>
+                            </macConfig>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bundling-for-windows</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>me.fishydarwin.fractalexplorer.Main</mainClass>
+                            <platform>windows</platform>
+                            <winConfig>
+                                <icoFile>${project.basedir}/src/main/resources/icon.ico</icoFile>
+                                <generateSetup>false</generateSetup>
+                                <generateMsi>false</generateMsi>
+                                <generateMsm>false</generateMsm>
+                                <companyName>Bozga Rareș Ionuț</companyName>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <productVersion>1.0.0.0</productVersion>
+                                <fileDescription>${description}</fileDescription>
+                                <copyright>Apache License</copyright>
+                                <productName>${name}</productName>
+                                <internalName>${name}</internalName>
+                                <originalFilename>${name}.exe</originalFilename>
+                                <setupMode>installForAllUsers</setupMode>
+                                <disableFinishedPage>false</disableFinishedPage>
+                                <disableRunAfterInstall>false</disableRunAfterInstall>
+                                <disableWelcomePage>true</disableWelcomePage>
+                                <createDesktopIconTask>true</createDesktopIconTask>
+                                <removeOldLibs>true</removeOldLibs>
+                            </winConfig>
+                            <bundleJre>true</bundleJre>
+                            <customizedJre>false</customizedJre>
+                            <createZipball>true</createZipball>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.13.0</version>
+        </dependency>
+    </dependencies>
+
+</project>
