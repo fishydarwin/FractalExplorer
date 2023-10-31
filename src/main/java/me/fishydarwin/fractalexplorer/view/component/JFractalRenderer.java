@@ -4,6 +4,7 @@ import me.fishydarwin.fractalexplorer.utils.FEMathUtils;
 import me.fishydarwin.fractalexplorer.view.window.AppWindow;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
+import uk.ac.manchester.tornado.api.annotations.Parallel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +30,7 @@ public class JFractalRenderer extends JPanel {
         imagePanel = new JImagePanel();
         imagePanel.setBackground(new Color(42, 42, 42));
         add(imagePanel);
+        // TODO: right click save rendered frame
     }
 
     private int maxIterations = 100;
@@ -41,8 +43,8 @@ public class JFractalRenderer extends JPanel {
         this.maxIterations = maxIterations;
     }
 
-    private int offsetX = 0;
-    private int offsetY = 0;
+    private double offsetX = 0;
+    private double offsetY = 0;
 
     private double zoomScale = 1;
 
@@ -120,19 +122,19 @@ public class JFractalRenderer extends JPanel {
 
     }
 
-    public int getOffsetX() {
+    public double getOffsetX() {
         return offsetX;
     }
 
-    public void setOffsetX(int offsetX) {
+    public void setOffsetX(double offsetX) {
         this.offsetX = offsetX;
     }
 
-    public int getOffsetY() {
+    public double getOffsetY() {
         return offsetY;
     }
 
-    public void setOffsetY(int offsetY) {
+    public void setOffsetY(double offsetY) {
         this.offsetY = offsetY;
     }
 
