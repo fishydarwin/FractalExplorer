@@ -55,6 +55,7 @@ public class JFractalRenderer extends JPanel {
     private double paletteB = 1;
 
     private int detailScale = 1;
+    private boolean checkerboard = false;
 
     private IStatement fexlInput;
     private final Map<Complex, Integer> evaluatedAlready = new ConcurrentHashMap<>();
@@ -98,7 +99,10 @@ public class JFractalRenderer extends JPanel {
             final int fTid = threadId;
             new Thread(() -> {
 
-                for (int i = fTid * regionLength; i < (fTid + 1) * regionLength; i++) {
+                final int stepSize = checkerboard ? 2 : 1;
+                final int begin = checkerboard ? fTid * regionLength + 2 :  fTid * regionLength;
+
+                for (int i = begin; i < (fTid + 1) * regionLength; i += stepSize) {
                     int x = i / imageWidth - halfWidth;
                     int y = i % imageWidth - halfHeight;
 
@@ -115,6 +119,15 @@ public class JFractalRenderer extends JPanel {
 
                     if (evaluatedAlready.containsKey(c)) {
                         result[i] = evaluatedAlready.get(c);
+                        if (checkerboard) {
+                            final Color currentColor = new Color(result[i]);
+                            final Color previousColor = new Color(result[i - 2]);
+                            result[i - 1] = new Color(
+                                    (currentColor.getRed() + previousColor.getRed()) / 2,
+                                    (currentColor.getGreen() + previousColor.getGreen()) / 2,
+                                    (currentColor.getBlue() + previousColor.getBlue()) / 2
+                            ).getRGB();
+                        }
                         continue;
                     }
 
@@ -146,6 +159,15 @@ public class JFractalRenderer extends JPanel {
                     int rgb = (new Color(r, g, b)).getRGB();
                     evaluatedAlready.put(c, rgb);
                     result[i] = rgb;
+                    if (checkerboard) {
+                        final Color currentColor = new Color(result[i]);
+                        final Color previousColor = new Color(result[i - 2]);
+                        result[i - 1] = new Color(
+                                (currentColor.getRed() + previousColor.getRed()) / 2,
+                                (currentColor.getGreen() + previousColor.getGreen()) / 2,
+                                (currentColor.getBlue() + previousColor.getBlue()) / 2
+                        ).getRGB();
+                    }
 
                 }
 
@@ -261,5 +283,19 @@ public class JFractalRenderer extends JPanel {
             this.maxIterations = 50;
         }
         this.detailScale = detailScale;
+    }
+
+    public boolean getCheckerboard() {
+        return checkerboard;
+    }
+
+    public void setCheckerboard(boolean checkerboard) {
+        if (this.checkerboard != checkerboard) {
+            this.offsetX = 0;
+            this.offsetY = 0;
+            this.zoomScale = 1;
+            this.maxIterations = 50;
+        }
+        this.checkerboard = checkerboard;
     }
 }

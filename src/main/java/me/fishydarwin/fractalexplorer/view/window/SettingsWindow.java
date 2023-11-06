@@ -23,6 +23,7 @@ public class SettingsWindow extends AppWindow {
     }
 
     private boolean useLowDetailChecked = false;
+    private boolean useCheckerboardChecked = false;
 
     @Override
     public void initComponents() {
@@ -67,10 +68,16 @@ public class SettingsWindow extends AppWindow {
         settingsPanel.add(blueSlider, settingsPanelConstraints);
 
         useLowDetailChecked = caller.getFractalRenderer().getDetailScale() == 2;
-        JCheckBox useLowDetail = new JCheckBox("Use half-resolution (faster)", useLowDetailChecked);
+        JCheckBox useLowDetail = new JCheckBox("Use half-resolution (faster, less HQ)", useLowDetailChecked);
         useLowDetail.addItemListener(e -> useLowDetailChecked = e.getStateChange() == ItemEvent.SELECTED);
         settingsPanelConstraints.gridy = 6;
         settingsPanel.add(useLowDetail, settingsPanelConstraints);
+
+        useCheckerboardChecked = caller.getFractalRenderer().getCheckerboard();
+        JCheckBox useCheckerboard = new JCheckBox("Checkerboard prediction (faster, less HQ)", useCheckerboardChecked);
+        useCheckerboard.addItemListener(e -> useCheckerboardChecked = e.getStateChange() == ItemEvent.SELECTED);
+        settingsPanelConstraints.gridy = 7;
+        settingsPanel.add(useCheckerboard, settingsPanelConstraints);
 
         JButton okButton = new JButton("Ok");
         okButton.addActionListener(e -> {
@@ -79,6 +86,7 @@ public class SettingsWindow extends AppWindow {
             caller.getFractalRenderer().setPaletteB(blueSlider.getValue() / 100.0 + 1);
 
             caller.getFractalRenderer().setDetailScale(useLowDetailChecked ? 2 : 1);
+            caller.getFractalRenderer().setCheckerboard(useCheckerboardChecked);
 
             caller.getFractalRenderer().render(true);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
