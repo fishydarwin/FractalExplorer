@@ -89,8 +89,8 @@
 
     <repositories>
         <repository>
-            <id>universityOfManchester-graal</id>
-            <url>https://raw.githubusercontent.com/beehive-lab/tornado/maven-tornadovm</url>
+            <id>redempt.dev</id>
+            <url>https://redempt.dev</url>
         </repository>
     </repositories>
 

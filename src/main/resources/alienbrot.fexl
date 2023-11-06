@@ -1,0 +1,21 @@
+// Alienbrot Test.
+bound = real: 3.14159;
+
+// grab za, zb...
+za = RE[z]; sin_za = za;
+zb = IM[z]; cos_zb = zb;
+
+// za = sin(za) * za
+sin_za = SIN[sin_za];
+sin_za = sin_za * za;
+
+// zb = cos(zb) * zb
+cos_zb = COS[cos_zb];
+cos_zb = cos_zb * zb;
+
+// redefine the z number based on the new numbers
+z = complex: sin_za, cos_zb;
+
+// perform classic Mandelbrot
+z = z * z;
+z = z + c;

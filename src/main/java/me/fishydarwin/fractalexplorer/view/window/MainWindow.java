@@ -1,14 +1,16 @@
 package me.fishydarwin.fractalexplorer.view.window;
 
-import com.formdev.flatlaf.util.SystemInfo;
 import me.fishydarwin.fractalexplorer.Main;
-import me.fishydarwin.fractalexplorer.model.control.KeyboardControlsListener;
-import me.fishydarwin.fractalexplorer.utils.FEIOUtils;
+import me.fishydarwin.fractalexplorer.view.control.KeyboardControlsListener;
+import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
 import me.fishydarwin.fractalexplorer.view.component.JFractalRenderer;
-import org.apache.commons.math3.complex.Complex;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class MainWindow extends AppWindow {
@@ -23,6 +25,9 @@ public class MainWindow extends AppWindow {
     public JFractalRenderer getFractalRenderer() {
         return fractalRenderer;
     }
+
+    private JProgressBar renderProgressBar;
+    public JProgressBar getRenderProgressBar() { return renderProgressBar; }
 
     public MainWindow() throws IOException {
         super("Fractal Explorer");
@@ -55,10 +60,64 @@ public class MainWindow extends AppWindow {
         mainPanel.add(titleBar, BorderLayout.PAGE_START);
 
         fractalRenderer = new JFractalRenderer(this);
-        mainPanel.add(fractalRenderer);
+        mainPanel.add(fractalRenderer, BorderLayout.CENTER);
+
+        renderProgressBar = new JProgressBar();
+        renderProgressBar.setPreferredSize(new Dimension(99999, 8));
+        renderProgressBar.setForeground(new Color(160, 160, 160));
+        renderProgressBar.setBackground(new Color(25, 25, 25));
+        mainPanel.add(renderProgressBar, BorderLayout.PAGE_END);
 
         addKeyListener(new KeyboardControlsListener(fractalRenderer));
 
+        JMenuBar menuBar = new JMenuBar();
+        {
+            JMenu fileMenu = new JMenu("File");
+
+            JMenuItem runFEXL = new JMenuItem("Open FEXL Script");
+            runFEXL.addActionListener(e -> {
+
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Open FEXL Script");
+                fileChooser.setFileFilter(
+                        new FileNameExtensionFilter("Fractal Explorer Language", "fexl")
+                );
+
+                int userSelection = fileChooser.showOpenDialog(this);
+
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File fileToRead = fileChooser.getSelectedFile();
+                    if (!fileToRead.getName().endsWith(".fexl")) {
+                        return;
+                    }
+                    try {
+                        BufferedReader reader = new BufferedReader(new FileReader(fileToRead));
+                        StringBuilder input = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            input.append(line).append("\n");
+                        }
+                        setFexlInput(input.toString());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+            });
+            fileMenu.add(runFEXL);
+
+            menuBar.add(fileMenu);
+        }
+        setJMenuBar(menuBar);
+
+    }
+
+    public void setFexlInput(String fexlInput) {
+        fractalRenderer.setFexlInput(FEXLCompiler.compileFEXL(fexlInput));
+        fractalRenderer.setOffsetX(0);
+        fractalRenderer.setOffsetY(0);
+        fractalRenderer.setZoomScale(1);
+        fractalRenderer.render(true);
     }
 
 }

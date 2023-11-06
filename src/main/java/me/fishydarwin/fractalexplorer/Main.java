@@ -6,7 +6,6 @@ import me.fishydarwin.fractalexplorer.model.os.GenericOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.MacOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.OSAppSetup;
 import me.fishydarwin.fractalexplorer.view.window.MainWindow;
-import org.apache.commons.math3.complex.Complex;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -52,14 +51,27 @@ public class Main {
             }
             window.setVisible(true);
 
-            // show Mandelbrot initially
-            // TODO: should be moved from here
-            MainWindow finalWindow = window;
-            new Thread(() -> finalWindow.getFractalRenderer().render((zcPair -> {
-                Complex z = zcPair.getFirst();
-                Complex c = zcPair.getSecond();
-                return z.multiply(z).add(c);
-            }), true)).start();
+            // show something initially
+            window.setFexlInput(
+                    """
+                    // Burning Ship: like Mandelbrot but you ABS the za and zb components.
+
+                    // grab za, zb...
+                    abs_za = RE[z];
+                    abs_zb = IM[z];
+
+                    // ABS them both
+                    abs_za = ABS[abs_za];
+                    abs_zb = ABS[abs_zb];
+
+                    // redefine the z number based on the new numbers
+                    z = complex: abs_za, abs_zb;
+
+                    // perform classic Mandelbrot
+                    z = z * z;
+                    z = z + c;
+                    """
+            );
 
         });
 
