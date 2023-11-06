@@ -24,31 +24,23 @@ public class KeyboardControlsListener implements KeyListener {
         switch (e.getKeyCode()) {
             default -> render = false;
             case KeyEvent.VK_LEFT -> boundRenderer.setOffsetX(boundRenderer.getOffsetX()
-                    - 0.05 / boundRenderer.getZoomScale());
+                    - 20 / boundRenderer.getZoomScale());
             case KeyEvent.VK_RIGHT -> boundRenderer.setOffsetX(boundRenderer.getOffsetX()
-                    + 0.05 / boundRenderer.getZoomScale());
+                    + 20 / boundRenderer.getZoomScale());
             case KeyEvent.VK_UP -> boundRenderer.setOffsetY(boundRenderer.getOffsetY()
-                    - 0.05 / boundRenderer.getZoomScale());
+                    - 20 / boundRenderer.getZoomScale());
             case KeyEvent.VK_DOWN -> boundRenderer.setOffsetY(boundRenderer.getOffsetY()
-                    + 0.05 / boundRenderer.getZoomScale());
-            case KeyEvent.VK_Z -> {
-                boundRenderer.setZoomScale(boundRenderer.getZoomScale() * 2);
-                boundRenderer.resetDetailScale();
-            }
-            case KeyEvent.VK_X -> {
-                boundRenderer.setZoomScale(boundRenderer.getZoomScale() / 2);
-                boundRenderer.resetDetailScale();
-            }
+                    + 20 / boundRenderer.getZoomScale());
+            case KeyEvent.VK_Z -> boundRenderer.setZoomScale(boundRenderer.getZoomScale() * 2);
+            case KeyEvent.VK_X -> boundRenderer.setZoomScale(boundRenderer.getZoomScale() / 2);
             case KeyEvent.VK_I -> {
                 boundRenderer.setMaxIterations(boundRenderer.getMaxIterations()
                         + boundRenderer.getMaxIterations() / 4);
-                boundRenderer.resetDetailScale();
                 recalc = true;
             }
             case KeyEvent.VK_O -> {
                 boundRenderer.setMaxIterations(boundRenderer.getMaxIterations()
                         - boundRenderer.getMaxIterations() / 4);
-                boundRenderer.resetDetailScale();
                 recalc = true;
             }
         }

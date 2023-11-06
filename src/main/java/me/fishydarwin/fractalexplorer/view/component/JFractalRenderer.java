@@ -35,7 +35,7 @@ public class JFractalRenderer extends JPanel {
         // TODO: right click save rendered frame
     }
 
-    private int maxIterations = 100;
+    private int maxIterations = 50;
 
     public int getMaxIterations() {
         return maxIterations;
@@ -43,42 +43,40 @@ public class JFractalRenderer extends JPanel {
 
     public void setMaxIterations(int maxIterations) {
         this.maxIterations = maxIterations;
+        ((MainWindow) belongingAppWindow).setStatusText("Max Iterations (" + maxIterations + ")");
     }
 
     private double offsetX = 0;
     private double offsetY = 0;
     private double zoomScale = 1;
 
+    private double paletteR = 2;
+    private double paletteG = 1.5;
+    private double paletteB = 1;
+
+    private int detailScale = 1;
 
     private IStatement fexlInput;
-    private final Map<Complex, Integer> evaluatedAlready = new ConcurrentHashMap<>(10000);
+    private final Map<Complex, Integer> evaluatedAlready = new ConcurrentHashMap<>();
     private final AtomicBoolean isRendering = new AtomicBoolean(false);
     public boolean isRenderingFractal() { return isRendering.get(); }
-    private int detailScale = 4;
-    public void resetDetailScale() { detailScale = 4; }
 
     public void render(boolean reEvaluate) {
-        if (reEvaluate) evaluatedAlready.clear();
+        if (reEvaluate) {
+            evaluatedAlready.clear();
+        }
 
         belongingAppWindow.setResizable(false);
         if (belongingAppWindow instanceof MainWindow)
             ((MainWindow) belongingAppWindow).getRenderProgressBar().setValue(5);
         isRendering.getAndSet(true);
 
-        imagePanel.setImage(new BufferedImage(
-                getWidth() / detailScale,
-                getHeight() / detailScale,
-                BufferedImage.TYPE_INT_RGB));
+        imagePanel.setImage(
+                new BufferedImage(getWidth() / detailScale, getHeight() / detailScale,
+                        BufferedImage.TYPE_INT_RGB)
+        );
         int imageWidth = imagePanel.getImage().getWidth();
         int imageHeight = imagePanel.getImage().getHeight();
-
-        detailScale /= 2;
-        boolean detailFurther = true;
-        if (detailScale < 1) {
-            detailScale = 1;
-            detailFurther = false;
-        }
-        final boolean fDetailFurther = detailFurther;
 
         double imageScaleX = ((double) getWidth()) / getHeight();
         int halfWidth = imageWidth / 2;
@@ -86,11 +84,14 @@ public class JFractalRenderer extends JPanel {
         double epsilon = 0.005 * (1 / zoomScale);
 
         int minBufferSize = Math.max(imageWidth, imageHeight);
-        final int[] result = new int[minBufferSize * minBufferSize];
+        int[] result = new int[minBufferSize * minBufferSize];
 
         AtomicInteger renderThreadsDone = new AtomicInteger(0);
         final int processorCount = Runtime.getRuntime().availableProcessors();
         final int regionLength = result.length / (processorCount - 1);
+
+        final Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval
+                = FEXLCompiler.generateFunction(fexlInput);
 
         for (int threadId = 0; threadId < processorCount - 1; threadId++) {
 
@@ -101,29 +102,21 @@ public class JFractalRenderer extends JPanel {
                     int x = i / imageWidth - halfWidth;
                     int y = i % imageWidth - halfHeight;
 
-                    double xScaled = ((double) x + halfWidth / 2.0)
-                            / imageWidth * imageScaleX + offsetX * zoomScale;
+                    double xScaled = ((double) x + halfWidth / 2.0 + offsetX * zoomScale)
+                            / imageWidth * imageScaleX;
                     xScaled = (xScaled * 4 - 2) * (1 / zoomScale);
 
-                    double yScaled = ((double) y + halfHeight)
-                            / imageHeight + offsetY * zoomScale;
+                    double yScaled = ((double) y + halfHeight + offsetY * zoomScale)
+                            / imageHeight;
                     yScaled = (yScaled * 4 - 2) * (1 / zoomScale);
 
                     Complex z = new Complex(0, 0);
                     Complex c = new Complex(xScaled, yScaled);
 
-                    double roundScale = 125 * zoomScale;
-                    Complex roundDownC = new Complex(
-                            ((int) (xScaled * roundScale)) / roundScale,
-                            ((int) (yScaled * roundScale)) / roundScale
-                    );
-                    if (evaluatedAlready.containsKey(roundDownC)) {
-                        result[i] = evaluatedAlready.get(roundDownC);
+                    if (evaluatedAlready.containsKey(c)) {
+                        result[i] = evaluatedAlready.get(c);
                         continue;
                     }
-
-                    Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval
-                            = FEXLCompiler.generateFunction(fexlInput);
 
                     int iterations = 0;
                     while (iterations < maxIterations) {
@@ -131,9 +124,9 @@ public class JFractalRenderer extends JPanel {
                         z = fcxRes.getFirst();
                         double bound = fcxRes.getSecond();
 
-                        double abs = z.abs();
-                        if (abs < epsilon) break;
-                        if (abs > bound) break;
+                        double abs = z.getReal() * z.getReal() + z.getImaginary() * z.getImaginary();
+                        if (abs < epsilon * epsilon) break;
+                        if (abs > bound * bound) break;
 
                         iterations++;
                     }
@@ -141,14 +134,17 @@ public class JFractalRenderer extends JPanel {
                     double pointPercentage = ((double) iterations) / maxIterations;
 
                     int r = (int) Math.floor(
-                            FEMathUtils.clamp(1 - Math.pow(3 * pointPercentage - 2, 2), 0, 1) * 255);
+                            FEMathUtils.clamp(1 - Math.pow(3 * pointPercentage - paletteR, 2),
+                                    0, 1) * 255);
                     int g = (int) Math.floor(
-                            FEMathUtils.clamp(1 - Math.pow(3 * pointPercentage - 1.5, 2), 0, 1) * 255);
+                            FEMathUtils.clamp(1 - Math.pow(3 * pointPercentage - paletteG, 2),
+                                    0, 1) * 255);
                     int b = (int) Math.floor(
-                            FEMathUtils.clamp(1 - Math.pow(3 * pointPercentage - 1, 2), 0, 1) * 255);
+                            FEMathUtils.clamp(1 - Math.pow(3 * pointPercentage - paletteB, 2),
+                                    0, 1) * 255);
 
                     int rgb = (new Color(r, g, b)).getRGB();
-                    evaluatedAlready.put(roundDownC, rgb);
+                    evaluatedAlready.put(c, rgb);
                     result[i] = rgb;
 
                 }
@@ -178,12 +174,13 @@ public class JFractalRenderer extends JPanel {
                 }
             } while (whatIsDoneSoFar < processorCount - 1);
 
-            if (belongingAppWindow instanceof MainWindow)
+            if (belongingAppWindow instanceof MainWindow) {
                 ((MainWindow) belongingAppWindow).getRenderProgressBar().setValue(0);
-            belongingAppWindow.setResizable(true);
-            isRendering.getAndSet(false);
+                ((MainWindow) belongingAppWindow).setStatusText("");
+            }
 
-            if (fDetailFurther) EventQueue.invokeLater(() -> render(false));
+            isRendering.getAndSet(false);
+            belongingAppWindow.setResizable(true);
 
         }).start();
 
@@ -195,6 +192,7 @@ public class JFractalRenderer extends JPanel {
 
     public void setOffsetX(double offsetX) {
         this.offsetX = offsetX;
+        ((MainWindow) belongingAppWindow).setStatusText("Translate X-axis (" + offsetX + ")");
     }
 
     public double getOffsetY() {
@@ -203,6 +201,7 @@ public class JFractalRenderer extends JPanel {
 
     public void setOffsetY(double offsetY) {
         this.offsetY = offsetY;
+        ((MainWindow) belongingAppWindow).setStatusText("Translate Y-axis (" + offsetY + ")");
     }
 
     public double getZoomScale() {
@@ -211,6 +210,7 @@ public class JFractalRenderer extends JPanel {
 
     public void setZoomScale(double zoomScale) {
         this.zoomScale = zoomScale;
+        ((MainWindow) belongingAppWindow).setStatusText("Scale (x" + (int) zoomScale + ")");
     }
 
     public void reRender(boolean reEvaluate) {
@@ -223,5 +223,43 @@ public class JFractalRenderer extends JPanel {
 
     public void setFexlInput(IStatement fexlInput) {
         this.fexlInput = fexlInput;
+    }
+
+    public double getPaletteR() {
+        return paletteR;
+    }
+
+    public void setPaletteR(double paletteR) {
+        this.paletteR = paletteR;
+    }
+
+    public double getPaletteG() {
+        return paletteG;
+    }
+
+    public void setPaletteG(double paletteG) {
+        this.paletteG = paletteG;
+    }
+
+    public double getPaletteB() {
+        return paletteB;
+    }
+
+    public void setPaletteB(double paletteB) {
+        this.paletteB = paletteB;
+    }
+
+    public int getDetailScale() {
+        return detailScale;
+    }
+
+    public void setDetailScale(int detailScale) {
+        if (this.detailScale != detailScale) {
+            this.offsetX = 0;
+            this.offsetY = 0;
+            this.zoomScale = 1;
+            this.maxIterations = 50;
+        }
+        this.detailScale = detailScale;
     }
 }

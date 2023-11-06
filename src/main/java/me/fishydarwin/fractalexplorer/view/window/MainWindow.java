@@ -8,6 +8,7 @@ import me.fishydarwin.fractalexplorer.view.component.JFractalRenderer;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -29,6 +30,9 @@ public class MainWindow extends AppWindow {
     private JProgressBar renderProgressBar;
     public JProgressBar getRenderProgressBar() { return renderProgressBar; }
 
+    private JLabel statusText;
+    public void setStatusText(String newText) { statusText.setText(newText); }
+
     public MainWindow() throws IOException {
         super("Fractal Explorer");
 
@@ -40,6 +44,8 @@ public class MainWindow extends AppWindow {
         setPreferredSize(new Dimension(1280, 720));
         setMinimumSize(new Dimension(640, 480));
     }
+
+    private SettingsWindow settingsWindow;
 
     @Override
     protected void initComponents() {
@@ -53,6 +59,13 @@ public class MainWindow extends AppWindow {
             title.setFont(new Font(Font.DIALOG, Font.PLAIN, 15));
             title.setForeground(Color.LIGHT_GRAY);
             titleBar.add(title);
+        }
+        {
+            statusText = new JLabel("Status");
+            statusText.setFont(new Font(Font.DIALOG, Font.PLAIN, 10));
+            statusText.setForeground(Color.LIGHT_GRAY);
+            statusText.setBorder(BorderFactory.createEmptyBorder(2, 8, 0, 0));
+            titleBar.add(statusText);
         }
         titleBar.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
         titleBar.getInsets().set(16, 0, 0, 0);
@@ -105,8 +118,22 @@ public class MainWindow extends AppWindow {
 
             });
             fileMenu.add(runFEXL);
-
             menuBar.add(fileMenu);
+
+            JMenu editMenu = new JMenu("Edit");
+            JMenuItem fractalSettings = new JMenuItem("Fractal Settings");
+            fractalSettings.addActionListener((e) -> {
+                try {
+                    if (settingsWindow != null)
+                        settingsWindow.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+                    settingsWindow = new SettingsWindow(this);
+                    settingsWindow.setVisible(true);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            editMenu.add(fractalSettings);
+            menuBar.add(editMenu);
         }
         setJMenuBar(menuBar);
 
