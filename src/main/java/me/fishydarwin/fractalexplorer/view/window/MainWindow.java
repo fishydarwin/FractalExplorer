@@ -1,9 +1,11 @@
 package me.fishydarwin.fractalexplorer.view.window;
 
 import me.fishydarwin.fractalexplorer.Main;
+import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
 import me.fishydarwin.fractalexplorer.view.control.KeyboardControlsListener;
 import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
 import me.fishydarwin.fractalexplorer.view.component.JFractalRenderer;
+import me.fishydarwin.fractalexplorer.view.window.popup.PopupWindow;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -140,7 +142,18 @@ public class MainWindow extends AppWindow {
     }
 
     public void setFexlInput(String fexlInput) {
-        fractalRenderer.setFexlInput(FEXLCompiler.compileFEXL(fexlInput));
+        IStatement compilationResult;
+        try {
+            compilationResult = FEXLCompiler.compileFEXL(fexlInput);
+        } catch (Exception ex) {
+            try {
+                PopupWindow.make("FEXL Compilation Error!", ex.getMessage());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
+        fractalRenderer.setFexlInput(compilationResult);
         fractalRenderer.setOffsetX(0);
         fractalRenderer.setOffsetY(0);
         fractalRenderer.setZoomScale(1);

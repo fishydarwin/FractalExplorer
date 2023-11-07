@@ -2,6 +2,7 @@ package me.fishydarwin.fractalexplorer.model.os;
 
 import me.fishydarwin.fractalexplorer.utils.FEIOUtils;
 import me.fishydarwin.fractalexplorer.view.window.AppWindow;
+import me.fishydarwin.fractalexplorer.view.window.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,6 +55,9 @@ public abstract class OSAppSetup {
             window.setIconImage(FEIOUtils.getIconImage());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        if (window instanceof MainWindow) {
+            ((MainWindow) window).getTitleBar().add(Box.createHorizontalStrut(8), 0);
         }
     }
 

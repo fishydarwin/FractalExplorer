@@ -5,12 +5,14 @@ import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
 import me.fishydarwin.fractalexplorer.utils.FEMathUtils;
 import me.fishydarwin.fractalexplorer.view.window.AppWindow;
 import me.fishydarwin.fractalexplorer.view.window.MainWindow;
+import me.fishydarwin.fractalexplorer.view.window.popup.PopupWindow;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,8 +93,17 @@ public class JFractalRenderer extends JPanel {
         final int processorCount = Runtime.getRuntime().availableProcessors();
         final int regionLength = result.length / (processorCount - 1);
 
-        final Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval
-                = FEXLCompiler.generateFunction(fexlInput);
+        Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval;
+        try {
+            fcxEval = FEXLCompiler.generateFunction(fexlInput);
+        } catch (Exception ex) {
+            try {
+                PopupWindow.make("Renderer Error!", ex.getMessage());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         for (int threadId = 0; threadId < processorCount - 1; threadId++) {
 

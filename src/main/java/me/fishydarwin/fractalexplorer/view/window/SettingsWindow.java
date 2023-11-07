@@ -1,5 +1,7 @@
 package me.fishydarwin.fractalexplorer.view.window;
 
+import me.fishydarwin.fractalexplorer.Main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -15,9 +17,12 @@ public class SettingsWindow extends AppWindow {
         this.caller = caller;
 
         initComponents();
+        Main.getAppSetup().appWindowSetup(this);
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
         setSize(300, 300);
+        setMaximumSize(new Dimension(300, 300));
         setPreferredSize(new Dimension(300, 300));
         setMinimumSize(new Dimension(300, 300));
     }

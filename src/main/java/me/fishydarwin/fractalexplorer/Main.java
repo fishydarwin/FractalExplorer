@@ -6,6 +6,7 @@ import me.fishydarwin.fractalexplorer.model.os.GenericOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.MacOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.OSAppSetup;
 import me.fishydarwin.fractalexplorer.view.window.MainWindow;
+import me.fishydarwin.fractalexplorer.view.window.popup.PopupWindow;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class Main {
             }
 
             // init main window
-            MainWindow window = null;
+            MainWindow window;
             try {
                 window = new MainWindow();
             } catch (IOException e) {

@@ -28,14 +28,14 @@ public class FEXLCompiler {
 
             IVariable evaluated = statement.evaluate(context);
             if (!(evaluated.getVariableType() instanceof ComplexVariableType))
-                throw new RuntimeException("Not a complex result.");
+                throw new IllegalStateException("Not a complex result.");
 
             double bound = (double) context.getVariable("bound").getValue();
             return new Pair<>((Complex) evaluated.getValue(), bound);
         };
     }
 
-    public static IStatement compileFEXL(String fullInput) {
+    public static IStatement compileFEXL(String fullInput) throws Exception {
         fullInput = fullInput.strip();
         if (fullInput.length() == 0)
             throw new IllegalArgumentException("Empty FEXL program!");
@@ -54,12 +54,14 @@ public class FEXLCompiler {
             // all assignments
             String[] assignmentSplit = instruction.strip().split("=");
             if (assignmentSplit.length != 2)
-                throw new IllegalArgumentException("Invalid token: " + instruction + ". Expected assignment.");
+                throw new IllegalArgumentException(instruction
+                        + ": Invalid token: " + instruction + ". Expected assignment.");
 
             // variable checks
             String varKey = assignmentSplit[0].strip();
             if (!varKey.matches("^(?!\\d|__|_$)\\w+$"))
-                throw new IllegalArgumentException("Invalid variable name: " + varKey);
+                throw new IllegalArgumentException(instruction
+                        + ": Invalid variable name: " + varKey);
 
             // expression type
             String varExpression = assignmentSplit[1].strip();
@@ -71,7 +73,8 @@ public class FEXLCompiler {
                 // unary arithmetic
                 String[] expressionSplit = varExpression.split("\\[");
                 if (expressionSplit.length != 2)
-                    throw new IllegalArgumentException("Unknown unary operator, or too many arguments!");
+                    throw new IllegalArgumentException(instruction
+                            + ": Unknown unary operator, or too many arguments!");
 
                 String operationEnumName = expressionSplit[0].strip().toUpperCase();
                 String variableUnary = expressionSplit[1].strip().split("\\]")[0].strip();
@@ -91,7 +94,8 @@ public class FEXLCompiler {
                 // binary arithmetic
                 String[] expressionSplit = varExpression.split("[\\+\\-\\*/]");
                 if (expressionSplit.length != 2)
-                    throw new IllegalArgumentException("Unknown binary operator, or too many arguments!");
+                    throw new IllegalArgumentException(instruction
+                            + ": Unknown binary operator, or too many arguments!");
 
                 String variableBinary1 = expressionSplit[0].strip();
                 String variableBinary2 = expressionSplit[1].strip();
@@ -129,7 +133,8 @@ public class FEXLCompiler {
                 // real instantiation
                 String[] expressionSplit = varExpression.split(":");
                 if (expressionSplit.length != 2)
-                    throw new IllegalArgumentException("Invalid real instantiation!");
+                    throw new IllegalArgumentException(instruction
+                            + ": Invalid real instantiation!");
 
                 String variableReal = expressionSplit[1].strip();
 
@@ -148,12 +153,13 @@ public class FEXLCompiler {
                 // complex instantiation
                 String[] expressionSplit = varExpression.split(":");
                 if (expressionSplit.length != 2)
-                    throw new IllegalArgumentException("Invalid complex instantiation!");
+                    throw new IllegalArgumentException(instruction
+                            + ": Invalid complex instantiation!");
 
                 String[] complexSplit = expressionSplit[1].strip().split(",");
                 if (complexSplit.length != 2)
-                    throw new IllegalArgumentException("Invalid complex instantiation!" +
-                            "Did you forget an argument?");
+                    throw new IllegalArgumentException(instruction
+                            + ": Invalid complex instantiation! Did you forget an argument?");
 
                 String variableReal1 = complexSplit[0].strip();
                 String variableReal2 = complexSplit[1].strip();
@@ -179,7 +185,8 @@ public class FEXLCompiler {
                         )
                 );
             }
-            else throw new IllegalArgumentException("Expression type unknown: " + varExpression);
+            else throw new IllegalArgumentException(instruction
+                        + ": Expression type unknown: " + varExpression);
 
             if (result == null) {
                 result = currentStatement;
