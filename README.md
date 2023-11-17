@@ -20,7 +20,11 @@ Use the `I` key to **increase iterations** and the `O` key to **decrease iterati
 
 You can use the top menu to open FEXL scripts, or to edit settings.
 
-FEXL syntax is incredibly easy, mostly containing of assignments.  
+#### Fractal Explorer Language
+
+The Fractal Explorer Language (FEXL) is a basic scripting language designed for FEX.
+
+FEXL syntax is incredibly easy, mostly consisting of assignments.  
 You can find examples in `src/main/resources`.
 
 Burning Ship in FEXL
