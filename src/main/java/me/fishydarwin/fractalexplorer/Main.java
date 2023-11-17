@@ -6,10 +6,11 @@ import me.fishydarwin.fractalexplorer.model.os.GenericOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.MacOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.OSAppSetup;
 import me.fishydarwin.fractalexplorer.view.window.MainWindow;
-import me.fishydarwin.fractalexplorer.view.window.popup.PopupWindow;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Main {
 

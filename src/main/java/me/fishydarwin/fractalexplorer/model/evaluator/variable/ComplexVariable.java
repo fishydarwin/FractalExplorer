@@ -49,33 +49,41 @@ public class ComplexVariable implements IVariable, INumeric {
 
     @Override
     public IVariable add(IVariable other) {
-        if (!(other instanceof ComplexVariable))
-            throw new IllegalArgumentException("Can only add complex numbers to a complex number.");
+        if (!(other instanceof ComplexVariable)) {
+            z = z.add((Double) other.getValue());
+            return this;
+        }
         z = z.add((Complex) other.getValue());
         return this;
     }
 
     @Override
     public IVariable sub(IVariable other) {
-        if (!(other instanceof ComplexVariable))
-            throw new IllegalArgumentException("Can only subtract complex numbers from a complex number.");
+        if (!(other instanceof ComplexVariable)) {
+            z = z.subtract((Double) other.getValue());
+            return this;
+        }
         z = z.subtract((Complex) other.getValue());
         return this;
     }
 
     @Override
     public IVariable mul(IVariable other) {
-        if (!(other instanceof ComplexVariable))
-            throw new IllegalArgumentException("Can only multiply complex numbers by a complex number.");
+        if (!(other instanceof ComplexVariable)) {
+            z = z.multiply((Double) other.getValue());
+            return this;
+        }
         z = z.multiply((Complex) other.getValue());
         return this;
     }
 
     @Override
     public IVariable div(IVariable other) {
-        if (!(other instanceof ComplexVariable))
-            throw new IllegalArgumentException("Can only divide complex numbers by a complex number.");
-        z = z.subtract((Complex) other.getValue());
+        if (!(other instanceof ComplexVariable)) {
+            z = z.divide((Double) other.getValue());
+            return this;
+        }
+        z = z.divide((Complex) other.getValue());
         return this;
     }
 
@@ -86,28 +94,25 @@ public class ComplexVariable implements IVariable, INumeric {
 
     @Override
     public IVariable sqrt() {
-        double a = z.getReal();
-        double b = z.getImaginary();
-        double abs = z.abs();
-        z = new Complex(Math.sqrt((abs + a) / 2), b / Math.abs(b) * Math.sqrt((abs - a) / 2));
+        z = z.sqrt();
         return this;
     }
 
     @Override
     public IVariable sin() {
-        z = new Complex(Math.sin(z.getReal()), Math.sin(z.getImaginary()));
+        z = z.sin();
         return this;
     }
 
     @Override
     public IVariable cos() {
-        z = new Complex(Math.cos(z.getReal()), Math.cos(z.getImaginary()));
+        z = z.cos();
         return this;
     }
 
     @Override
     public IVariable tan() {
-        z = new Complex(Math.tan(z.getReal()), Math.tan(z.getImaginary()));
+        z = z.tan();
         return this;
     }
 
@@ -119,5 +124,21 @@ public class ComplexVariable implements IVariable, INumeric {
     @Override
     public RealVariable imaginary() {
         return new RealVariable(z.getImaginary());
+    }
+
+    @Override
+    public IVariable ln() {
+        z = z.log();
+        return this;
+    }
+
+    @Override
+    public IVariable pow(IVariable other) {
+        if (other instanceof RealVariable) {
+            z = z.pow((Double) other.getValue());
+            return this;
+        }
+        z.pow((Complex) other.getValue());
+        return this;
     }
 }

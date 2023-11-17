@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,7 +92,8 @@ public class JFractalRenderer extends JPanel {
 
         AtomicInteger renderThreadsDone = new AtomicInteger(0);
         final int processorCount = Runtime.getRuntime().availableProcessors();
-        final int regionLength = result.length / (processorCount - 1);
+        final int threadPoolSize = processorCount + processorCount / 8;
+        final int regionLength = result.length / threadPoolSize;
 
         Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval;
         try {
@@ -105,7 +107,7 @@ public class JFractalRenderer extends JPanel {
             return;
         }
 
-        for (int threadId = 0; threadId < processorCount - 1; threadId++) {
+        for (int threadId = 0; threadId < threadPoolSize; threadId++) {
 
             final int fTid = threadId;
             new Thread(() -> {
@@ -113,7 +115,7 @@ public class JFractalRenderer extends JPanel {
                 final int stepSize = checkerboard ? 2 : 1;
                 final int begin = checkerboard ? fTid * regionLength + 2 :  fTid * regionLength;
 
-                for (int i = begin; i < (fTid + 1) * regionLength; i += stepSize) {
+                for (int i = begin; i < (fTid + 1) * regionLength && i < result.length; i += stepSize) {
                     int x = i / imageWidth - halfWidth;
                     int y = i % imageWidth - halfHeight;
 
@@ -205,7 +207,7 @@ public class JFractalRenderer extends JPanel {
                                 .setValue((int) ((double) whatIsDoneSoFar / (processorCount - 1) * 100));
                     }
                 }
-            } while (whatIsDoneSoFar < processorCount - 1);
+            } while (whatIsDoneSoFar < threadPoolSize);
 
             if (belongingAppWindow instanceof MainWindow) {
                 ((MainWindow) belongingAppWindow).getRenderProgressBar().setValue(0);
@@ -243,7 +245,7 @@ public class JFractalRenderer extends JPanel {
 
     public void setZoomScale(double zoomScale) {
         this.zoomScale = zoomScale;
-        ((MainWindow) belongingAppWindow).setStatusText("Scale (x" + (int) zoomScale + ")");
+        ((MainWindow) belongingAppWindow).setStatusText("Scale (x" + String.format("%.0f", zoomScale) + ")");
     }
 
     public void reRender(boolean reEvaluate) {

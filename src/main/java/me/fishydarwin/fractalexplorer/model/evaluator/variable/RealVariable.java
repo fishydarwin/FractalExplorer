@@ -111,4 +111,15 @@ public class RealVariable implements IVariable, INumeric {
     public RealVariable imaginary() {
         return new RealVariable(0);
     }
+
+    @Override
+    public IVariable ln() { return new RealVariable(Math.log(r)); }
+
+    @Override
+    public IVariable pow(IVariable other) {
+        if (!(other instanceof RealVariable))
+            throw new IllegalArgumentException("Can only raise real numbers to real powers.");
+        r = Math.pow(r, (Double) other.getValue());
+        return this;
+    }
 }

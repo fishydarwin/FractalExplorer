@@ -23,4 +23,8 @@ public interface INumeric {
     RealVariable real();
     RealVariable imaginary();
 
+    IVariable ln();
+
+    IVariable pow(IVariable other);
+
 }

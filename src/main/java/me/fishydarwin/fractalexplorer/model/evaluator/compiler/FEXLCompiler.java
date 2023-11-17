@@ -22,6 +22,8 @@ public class FEXLCompiler {
             (IStatement statement) {
         return (zcPair) -> {
             IContext context = new Context();
+            context.setVariable("pi", new RealVariable(Math.PI));
+            context.setVariable("e", new RealVariable(Math.PI));
             context.setVariable("z", new ComplexVariable(zcPair.getFirst()));
             context.setVariable("c", new ComplexVariable(zcPair.getSecond()));
             context.setVariable("bound", new RealVariable(2));
@@ -90,9 +92,10 @@ public class FEXLCompiler {
                 );
             }
             else if (varExpression.contains("+") || varExpression.contains("-") ||
-                    varExpression.contains("*") || varExpression.contains("/")) {
+                    varExpression.contains("*") || varExpression.contains("/") ||
+                    varExpression.contains("^")) {
                 // binary arithmetic
-                String[] expressionSplit = varExpression.split("[\\+\\-\\*/]");
+                String[] expressionSplit = varExpression.split("[\\+\\-\\*/\\^]");
                 if (expressionSplit.length != 2)
                     throw new IllegalArgumentException(instruction
                             + ": Unknown binary operator, or too many arguments!");
@@ -104,6 +107,7 @@ public class FEXLCompiler {
                 if (varExpression.contains("-")) operationEnumName = "SUB";
                 else if (varExpression.contains("*")) operationEnumName = "MUL";
                 else if (varExpression.contains("/")) operationEnumName = "DIV";
+                else if (varExpression.contains("^")) operationEnumName = "POW";
 
                 ArithmeticExpression.BinaryNumericExpressionOperator operator =
                         ArithmeticExpression.BinaryNumericExpressionOperator.valueOf(operationEnumName);

@@ -3,16 +3,17 @@ package me.fishydarwin.fractalexplorer.model.evaluator.expression;
 import me.fishydarwin.fractalexplorer.model.evaluator.context.IContext;
 import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
 import me.fishydarwin.fractalexplorer.model.evaluator.variable.IVariable;
+import me.fishydarwin.fractalexplorer.model.evaluator.variable.RealVariable;
 import me.fishydarwin.fractalexplorer.model.evaluator.variable.numeric.INumeric;
 
 public class ArithmeticExpression implements IExpression {
 
     public interface NumericExpressionOperator {}
     public enum UnaryNumericExpressionOperator implements NumericExpressionOperator {
-        ABS, SQRT, SIN, COS, TAN, RE, IM
+        ABS, SQRT, SIN, COS, TAN, RE, IM, LN
     }
     public enum BinaryNumericExpressionOperator implements NumericExpressionOperator {
-        ADD, SUB, MUL, DIV
+        ADD, SUB, MUL, DIV, POW
     }
 
     private final IStatement statement1;
@@ -55,27 +56,42 @@ public class ArithmeticExpression implements IExpression {
                 case IM -> {
                     return var1.imaginary();
                 }
+                case LN -> {
+                    return var1.ln();
+                }
             }
         } else if (operator instanceof BinaryNumericExpressionOperator opCast) {
             IVariable ncVar2 = statement2.evaluate(context);
             if (!(ncVar2 instanceof INumeric var2))
                 throw new IllegalArgumentException("Cannot perform arithmetic expressions on non-numeric types.");
-            if (!var1.variableType().equals(var2.variableType())) {
-                throw new ArithmeticException("Variables have mismatching types.");
-            }
             switch (opCast) {
                 default -> throw new ArithmeticException("Invalid binary operator.");
                 case ADD -> {
+                    if (!var1.variableType().equals(var2.variableType())) {
+                        throw new ArithmeticException("Variables have mismatching types.");
+                    }
                     return var1.add(var2.grab());
                 }
                 case SUB -> {
+                    if (!var1.variableType().equals(var2.variableType())) {
+                        throw new ArithmeticException("Variables have mismatching types.");
+                    }
                     return var1.sub(var2.grab());
                 }
                 case MUL -> {
+                    if (!var1.variableType().equals(var2.variableType())) {
+                        throw new ArithmeticException("Variables have mismatching types.");
+                    }
                     return var1.mul(var2.grab());
                 }
                 case DIV -> {
+                    if (!var1.variableType().equals(var2.variableType())) {
+                        throw new ArithmeticException("Variables have mismatching types.");
+                    }
                     return var1.div(var2.grab());
+                }
+                case POW -> {
+                    return var1.pow(var2.grab());
                 }
             }
         }
