@@ -2,6 +2,8 @@ package me.fishydarwin.fractalexplorer.view.component;
 
 import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
 import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
+import me.fishydarwin.fractalexplorer.utils.FEIOUtils;
+import me.fishydarwin.fractalexplorer.utils.FEImageUtils;
 import me.fishydarwin.fractalexplorer.utils.FEMathUtils;
 import me.fishydarwin.fractalexplorer.view.clipboard.ClipboardUtil;
 import me.fishydarwin.fractalexplorer.view.window.AppWindow;
@@ -17,6 +19,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -45,8 +49,12 @@ public class JBoundTimeFractalRenderer extends JPanel {
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger())
+                if (e.isShiftDown())
+                    drawOrbit(e.getX(), e.getY());
+                else if (e.isPopupTrigger())
                     showImageContextPopup(e);
+                else
+                    clearOrbits();
             }
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger())
@@ -176,7 +184,121 @@ public class JBoundTimeFractalRenderer extends JPanel {
         return rgb;
     }
 
+    private BufferedImage cleanImageNoOrbits = null;
+    private void clearOrbits() {
+        if (cleanImageNoOrbits != null) {
+            imagePanel.setImage(FEImageUtils.copyImage(cleanImageNoOrbits));
+            imagePanel.repaintScaled();
+        }
+        ((MainWindow) belongingAppWindow).setStatusText("");
+    }
+
+    private void drawOrbit(int mouseX, int mouseY) {
+
+        clearOrbits();
+
+        int imageWidth = imagePanel.getImage().getWidth();
+        int imageHeight = imagePanel.getImage().getHeight();
+
+        double imageScaleX = ((double) getWidth()) / getHeight();
+        int halfWidth = imageWidth / 2;
+        int halfHeight = imageHeight / 2;
+        double epsilon = 0.005 * (1 / zoomScale);
+
+        Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval;
+        fcxEval = FEXLCompiler.generateFunction(fexlInput);
+
+        int x = mouseX / detailScale - halfWidth;
+        int y = mouseY / detailScale - halfHeight;
+
+        double xScaled = ((double) x + halfWidth / 2.0 + offsetX * zoomScale)
+                / imageWidth * imageScaleX;
+        xScaled = (xScaled * 4 - 2) * (1 / zoomScale);
+
+        double yScaled = ((double) y + halfHeight + offsetY * zoomScale)
+                / imageHeight;
+        yScaled = (yScaled * 4 - 2) * (1 / zoomScale);
+
+        ((MainWindow) belongingAppWindow).setStatusText("Show orbit for z = " + xScaled + " + " + yScaled + "i");
+
+        Complex z = new Complex(0, 0);
+        Complex c = new Complex(xScaled, yScaled);
+
+        // TODO: fast erase previous drawn orbit
+
+        Graphics2D gfx = imagePanel.getImage().createGraphics();
+
+        int r = (int) Math.floor(
+                FEMathUtils.clamp(1 - Math.pow(3 * 0.75 - paletteR, 2),
+                        0, 1) * 255);
+        int g = (int) Math.floor(
+                FEMathUtils.clamp(1 - Math.pow(3 * 0.75 - paletteG, 2),
+                        0, 1) * 255);
+        int b = (int) Math.floor(
+                FEMathUtils.clamp(1 - Math.pow(3 * 0.75 - paletteB, 2),
+                        0, 1) * 255);
+
+        Color colorFore = new Color(255 - r, 255 - g, 255 - b);
+        Color colorBack = new Color((255 - r) / 2, (255 - g) / 2, (255 - b) / 2);
+
+        Point2D previousPoint;
+        Point2D nextPoint = new Point2D.Float((float) mouseX / detailScale, (float) mouseY / detailScale);
+
+        int iterations = 0;
+        while (iterations < maxIterations) {
+
+            Pair<Complex, Double> fcxRes;
+            fcxRes = fcxEval.apply(new Pair<>(z, c));
+
+            z = fcxRes.getFirst();
+            double bound = fcxRes.getSecond();
+
+            /*
+            double xScaled = ((double) x + halfWidth / 2.0 + offsetX * zoomScale)
+                / imageWidth * imageScaleX;
+            xScaled = (xScaled * 4 - 2) * (1 / zoomScale);
+
+            double yScaled = ((double) y + halfHeight + offsetY * zoomScale)
+                    / imageHeight;
+            yScaled = (yScaled * 4 - 2) * (1 / zoomScale);
+             */
+
+            double xUnScaled = (z.getReal() * zoomScale + 2) / 4;
+            xUnScaled = xUnScaled / imageScaleX * imageWidth - halfWidth / 2.0 - offsetX * zoomScale;
+            xUnScaled += halfWidth;
+
+            double yUnScaled = (z.getImaginary() * zoomScale + 2) / 4;
+            yUnScaled = yUnScaled * imageHeight - halfHeight - offsetY * zoomScale;
+            yUnScaled += halfHeight;
+
+            previousPoint = nextPoint;
+            nextPoint = new Point2D.Float((float) xUnScaled, (float) yUnScaled);
+
+            gfx.setColor(colorBack);
+            gfx.setStroke(new BasicStroke(2));
+            gfx.draw(new Line2D.Float(previousPoint, nextPoint));
+            gfx.setColor(colorFore);
+            gfx.setStroke(new BasicStroke(1));
+            gfx.draw(new Line2D.Float(previousPoint, nextPoint));
+
+            double abs = z.getReal() * z.getReal() + z.getImaginary() * z.getImaginary();
+            if (abs < epsilon * epsilon) break;
+            if (abs > bound * bound) break;
+
+            iterations++;
+        }
+
+        gfx.dispose();
+
+        imagePanel.calculateAndResizeImage();
+        imagePanel.repaint();
+
+    }
+
     public void render(boolean reEvaluate) {
+
+        cleanImageNoOrbits = null;
+
         if (reEvaluate) {
             evaluatedAlready.clear();
         }
@@ -197,8 +319,6 @@ public class JBoundTimeFractalRenderer extends JPanel {
         int halfWidth = imageWidth / 2;
         int halfHeight = imageHeight / 2;
         double epsilon = 0.005 * (1 / zoomScale);
-
-        int minBufferSize = Math.max(imageWidth, imageHeight);
 
         AtomicInteger renderThreadsDone = new AtomicInteger(0);
         final int processorCount = Runtime.getRuntime().availableProcessors();
@@ -253,7 +373,7 @@ public class JBoundTimeFractalRenderer extends JPanel {
 
                 // pre-fill stack
                 {
-                    final int initialRegionSize = 256;
+                    final int initialRegionSize = 512;
                     for (int i = chunkXBegin; i < chunkXEnd; i += initialRegionSize) {
                         for (int j = 0; j < imageHeight; j += initialRegionSize) {
                             regionStack.add(Triple.of(i, j, initialRegionSize));
@@ -429,6 +549,8 @@ public class JBoundTimeFractalRenderer extends JPanel {
 
             imagePanel.calculateAndResizeImage();
             imagePanel.repaint();
+
+            cleanImageNoOrbits = FEImageUtils.copyImage(imagePanel.getImage());
 
             if (belongingAppWindow instanceof MainWindow) {
                 ((MainWindow) belongingAppWindow).getRenderProgressBar().setValue(0);
