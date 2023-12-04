@@ -2,7 +2,7 @@
 
 ![FEX Logo](https://raw.githubusercontent.com/fishydarwin/FractalExplorer-JS/main/assets/icon.png)
 
-Fractal Explorer is an app written in Java Swing which provides a Fractal Renderer and a custom scripting language (FEXL) to let you view some basic fractals.
+Fractal Explorer is an app written in Java Swing which provides an Escape-Time Fractal Renderer and a custom scripting language (FEXL) to let you view some basic fractals.
 
 The iteration code will iterate over each pixel on your CPU, using as many threads as possible, as well as using a pixel cache and the Mariani-Silver algorithm, to determine how to color each pixel based on how far the iteration went.
 
@@ -14,9 +14,16 @@ If you are interested in a GPU version of this application with reduced features
 
 ### How to use
 #### Controls
-Use the arrow keys ← → ↑ ↓ to move/translate around.  
+Use the arrow keys `←` `→` `↑` `↓` to move/translate around.  
+Hold `Shift` to move slightly faster.
+
 Use the `Z` key to **zoom in**, and the `X` key to **zoom out**.  
 Use the `I` key to **increase iterations** and the `O` key to **decrease iterations**.
+
+Use `Alt + Left Click` to zoom in where you are clicking (on macOS, use `Option + Left Click`).  
+Use `Alt + Right Click` to zoom out from where you are clicking (on macOS, use `Option + Right Click`).
+
+Use `Shift + Left Click` to view the orbit of the point you have clicked on.
 
 You can use the top menu to open FEXL scripts, or to edit settings.
 
