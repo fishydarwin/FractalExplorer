@@ -4,11 +4,11 @@
 
 Fractal Explorer is an app written in Java Swing which provides a Fractal Renderer and a custom scripting language (FEXL) to let you view some basic fractals.
 
-The iteration code will iterate over each pixel on your CPU, using as many threads as possible, as well as using a pixel cache, to determine how to color each pixel based on how far the iteration went.
+The iteration code will iterate over each pixel on your CPU, using as many threads as possible, as well as using a pixel cache and the Mariani-Silver algorithm, to determine how to color each pixel based on how far the iteration went.
 
 ![FEX Looks](https://raw.githubusercontent.com/fishydarwin/FractalExplorer/ffitw/github_assets/looks.png)
 
-You may change the colors of the rendering, as well as enable quality sacrifices (half-resolution, skipping pixels in checkerboard etc...) to obtain faster rendering speeds, which is especially helpful on lower-end CPUs.
+You may change the colors of the rendering, as well as enable quality sacrifices (half-resolution) to obtain faster rendering speeds, which is especially helpful on lower-end CPUs.
 
 If you are interested in a GPU version of this application with reduced features, please check out the sister project [FEX-JS](https://www.github.com/fishydarwin/FractalExplorer-JS).
 
