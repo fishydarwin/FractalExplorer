@@ -2,7 +2,6 @@ package me.fishydarwin.fractalexplorer.view.component;
 
 import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
 import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
-import me.fishydarwin.fractalexplorer.utils.FEIOUtils;
 import me.fishydarwin.fractalexplorer.utils.FEImageUtils;
 import me.fishydarwin.fractalexplorer.utils.FEMathUtils;
 import me.fishydarwin.fractalexplorer.view.clipboard.ClipboardUtil;
@@ -51,6 +50,23 @@ public class JBoundTimeFractalRenderer extends JPanel {
             public void mousePressed(MouseEvent e) {
                 if (e.isShiftDown())
                     drawOrbit(e.getX(), e.getY());
+                else if (e.isAltDown()) {
+                    int imageWidth = imagePanel.getImage().getWidth();
+                    int imageHeight = imagePanel.getImage().getHeight();
+                    int halfWidth = imageWidth / 2;
+                    int halfHeight = imageHeight / 2;
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        setOffsetX(offsetX + (e.getX() - halfWidth) / zoomScale);
+                        setOffsetY(offsetY + (e.getY() - halfHeight) / zoomScale);
+                        zoomScale *= 2;
+                    }
+                    else {
+                        setOffsetX(offsetX - (e.getX() - halfWidth) / zoomScale);
+                        setOffsetY(offsetY - (e.getY() - halfHeight) / zoomScale);
+                        zoomScale /= 2;
+                    }
+                    reRender(false);
+                }
                 else if (e.isPopupTrigger())
                     showImageContextPopup(e);
                 else
@@ -251,17 +267,7 @@ public class JBoundTimeFractalRenderer extends JPanel {
             fcxRes = fcxEval.apply(new Pair<>(z, c));
 
             z = fcxRes.getFirst();
-            double bound = fcxRes.getSecond();
-
-            /*
-            double xScaled = ((double) x + halfWidth / 2.0 + offsetX * zoomScale)
-                / imageWidth * imageScaleX;
-            xScaled = (xScaled * 4 - 2) * (1 / zoomScale);
-
-            double yScaled = ((double) y + halfHeight + offsetY * zoomScale)
-                    / imageHeight;
-            yScaled = (yScaled * 4 - 2) * (1 / zoomScale);
-             */
+            double bound = fcxRes.getSecond() * 4;
 
             double xUnScaled = (z.getReal() * zoomScale + 2) / 4;
             xUnScaled = xUnScaled / imageScaleX * imageWidth - halfWidth / 2.0 - offsetX * zoomScale;

@@ -2,7 +2,7 @@ package me.fishydarwin.fractalexplorer.view.window;
 
 import me.fishydarwin.fractalexplorer.Main;
 import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
-import me.fishydarwin.fractalexplorer.view.control.KeyboardControlsListener;
+import me.fishydarwin.fractalexplorer.view.control.BoundTimeKeyboardControlsListener;
 import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
 import me.fishydarwin.fractalexplorer.view.component.JBoundTimeFractalRenderer;
 import me.fishydarwin.fractalexplorer.view.window.popup.PopupWindow;
@@ -83,7 +83,7 @@ public class MainWindow extends AppWindow {
         renderProgressBar.setBackground(new Color(25, 25, 25));
         mainPanel.add(renderProgressBar, BorderLayout.PAGE_END);
 
-        addKeyListener(new KeyboardControlsListener(fractalRenderer));
+        addKeyListener(new BoundTimeKeyboardControlsListener(fractalRenderer));
 
         JMenuBar menuBar = new JMenuBar();
         {

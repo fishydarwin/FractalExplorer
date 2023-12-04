@@ -9,8 +9,6 @@ import me.fishydarwin.fractalexplorer.view.window.MainWindow;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Main {
 

@@ -5,11 +5,16 @@ import me.fishydarwin.fractalexplorer.view.component.JBoundTimeFractalRenderer;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class KeyboardControlsListener implements KeyListener {
+public class BoundTimeKeyboardControlsListener implements KeyListener {
 
     private final JBoundTimeFractalRenderer boundRenderer;
 
-    public KeyboardControlsListener(JBoundTimeFractalRenderer boundRenderer) {
+    private boolean isHoldingShift = false;
+    private int largerMove() {
+        return isHoldingShift ? 4 : 1;
+    }
+
+    public BoundTimeKeyboardControlsListener(JBoundTimeFractalRenderer boundRenderer) {
         this.boundRenderer = boundRenderer;
     }
 
@@ -23,14 +28,18 @@ public class KeyboardControlsListener implements KeyListener {
         boolean recalc = false;
         switch (e.getKeyCode()) {
             default -> render = false;
+            case KeyEvent.VK_SHIFT -> {
+                isHoldingShift = true;
+                render = false;
+            }
             case KeyEvent.VK_LEFT -> boundRenderer.setOffsetX(boundRenderer.getOffsetX()
-                    - 20 / boundRenderer.getZoomScale());
+                    - 20 * largerMove() / boundRenderer.getZoomScale());
             case KeyEvent.VK_RIGHT -> boundRenderer.setOffsetX(boundRenderer.getOffsetX()
-                    + 20 / boundRenderer.getZoomScale());
+                    + 20 * largerMove() / boundRenderer.getZoomScale());
             case KeyEvent.VK_UP -> boundRenderer.setOffsetY(boundRenderer.getOffsetY()
-                    - 20 / boundRenderer.getZoomScale());
+                    - 20 * largerMove() / boundRenderer.getZoomScale());
             case KeyEvent.VK_DOWN -> boundRenderer.setOffsetY(boundRenderer.getOffsetY()
-                    + 20 / boundRenderer.getZoomScale());
+                    + 20* largerMove() / boundRenderer.getZoomScale());
             case KeyEvent.VK_Z -> boundRenderer.setZoomScale(boundRenderer.getZoomScale() * 2);
             case KeyEvent.VK_X -> boundRenderer.setZoomScale(boundRenderer.getZoomScale() / 2);
             case KeyEvent.VK_I -> {
@@ -50,6 +59,10 @@ public class KeyboardControlsListener implements KeyListener {
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            isHoldingShift = false;
+        }
+    }
 
 }
