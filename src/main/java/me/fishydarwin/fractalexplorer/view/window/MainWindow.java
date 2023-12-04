@@ -4,7 +4,7 @@ import me.fishydarwin.fractalexplorer.Main;
 import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
 import me.fishydarwin.fractalexplorer.view.control.KeyboardControlsListener;
 import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
-import me.fishydarwin.fractalexplorer.view.component.JFractalRenderer;
+import me.fishydarwin.fractalexplorer.view.component.JBoundTimeFractalRenderer;
 import me.fishydarwin.fractalexplorer.view.window.popup.PopupWindow;
 
 import javax.swing.*;
@@ -23,9 +23,9 @@ public class MainWindow extends AppWindow {
         return titleBar;
     }
 
-    private JFractalRenderer fractalRenderer;
+    private JBoundTimeFractalRenderer fractalRenderer;
 
-    public JFractalRenderer getFractalRenderer() {
+    public JBoundTimeFractalRenderer getFractalRenderer() {
         return fractalRenderer;
     }
 
@@ -47,7 +47,7 @@ public class MainWindow extends AppWindow {
         setMinimumSize(new Dimension(640, 480));
     }
 
-    private SettingsWindow settingsWindow;
+    private BoundTimeSettingsWindow boundTimeSettingsWindow;
 
     @Override
     protected void initComponents() {
@@ -74,7 +74,7 @@ public class MainWindow extends AppWindow {
         titleBar.setBackground(new Color(15, 15, 15));
         mainPanel.add(titleBar, BorderLayout.PAGE_START);
 
-        fractalRenderer = new JFractalRenderer(this);
+        fractalRenderer = new JBoundTimeFractalRenderer(this);
         mainPanel.add(fractalRenderer, BorderLayout.CENTER);
 
         renderProgressBar = new JProgressBar();
@@ -126,10 +126,10 @@ public class MainWindow extends AppWindow {
             JMenuItem fractalSettings = new JMenuItem("Fractal Settings");
             fractalSettings.addActionListener((e) -> {
                 try {
-                    if (settingsWindow != null)
-                        settingsWindow.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                    settingsWindow = new SettingsWindow(this);
-                    settingsWindow.setVisible(true);
+                    if (boundTimeSettingsWindow != null)
+                        boundTimeSettingsWindow.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+                    boundTimeSettingsWindow = new BoundTimeSettingsWindow(this);
+                    boundTimeSettingsWindow.setVisible(true);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }

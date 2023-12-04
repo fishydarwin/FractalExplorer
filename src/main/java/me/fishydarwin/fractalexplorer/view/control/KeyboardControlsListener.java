@@ -1,15 +1,15 @@
 package me.fishydarwin.fractalexplorer.view.control;
 
-import me.fishydarwin.fractalexplorer.view.component.JFractalRenderer;
+import me.fishydarwin.fractalexplorer.view.component.JBoundTimeFractalRenderer;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyboardControlsListener implements KeyListener {
 
-    private final JFractalRenderer boundRenderer;
+    private final JBoundTimeFractalRenderer boundRenderer;
 
-    public KeyboardControlsListener(JFractalRenderer boundRenderer) {
+    public KeyboardControlsListener(JBoundTimeFractalRenderer boundRenderer) {
         this.boundRenderer = boundRenderer;
     }
 

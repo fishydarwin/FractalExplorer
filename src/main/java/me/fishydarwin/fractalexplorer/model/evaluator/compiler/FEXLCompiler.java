@@ -11,6 +11,7 @@ import me.fishydarwin.fractalexplorer.model.evaluator.variable.ComplexVariable;
 import me.fishydarwin.fractalexplorer.model.evaluator.variable.IVariable;
 import me.fishydarwin.fractalexplorer.model.evaluator.variable.RealVariable;
 import me.fishydarwin.fractalexplorer.model.evaluator.variable.type.ComplexVariableType;
+import me.fishydarwin.fractalexplorer.model.evaluator.variable.type.RealVariableType;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 
@@ -28,12 +29,15 @@ public class FEXLCompiler {
             context.setVariable("c", new ComplexVariable(zcPair.getSecond()));
             context.setVariable("bound", new RealVariable(2));
 
-            IVariable evaluated = statement.evaluate(context);
-            if (!(evaluated.getVariableType() instanceof ComplexVariableType))
-                throw new IllegalStateException("Not a complex result.");
+            statement.evaluate(context);
+            if (!(context.getVariable("z").getVariableType() instanceof ComplexVariableType))
+                throw new IllegalStateException("z is not a complex result.");
 
-            double bound = (double) context.getVariable("bound").getValue();
-            return new Pair<>((Complex) evaluated.getValue(), bound);
+            if (!(context.getVariable("bound").getVariableType() instanceof RealVariableType))
+                throw new IllegalStateException("bound is not a real result.");
+
+            return new Pair<>((Complex) context.getVariable("z").getValue(),
+                    (Double) context.getVariable("bound").getValue());
         };
     }
 

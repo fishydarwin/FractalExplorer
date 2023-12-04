@@ -8,11 +8,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-public class SettingsWindow extends AppWindow {
+public class BoundTimeSettingsWindow extends AppWindow {
 
     private final MainWindow caller;
 
-    public SettingsWindow(MainWindow caller) throws IOException {
+    public BoundTimeSettingsWindow(MainWindow caller) throws IOException {
         super("Fractal Settings");
         this.caller = caller;
 
@@ -78,12 +78,6 @@ public class SettingsWindow extends AppWindow {
         settingsPanelConstraints.gridy = 6;
         settingsPanel.add(useLowDetail, settingsPanelConstraints);
 
-        useCheckerboardChecked = caller.getFractalRenderer().getCheckerboard();
-        JCheckBox useCheckerboard = new JCheckBox("Checkerboard prediction (faster, less HQ)", useCheckerboardChecked);
-        useCheckerboard.addItemListener(e -> useCheckerboardChecked = e.getStateChange() == ItemEvent.SELECTED);
-        settingsPanelConstraints.gridy = 7;
-        settingsPanel.add(useCheckerboard, settingsPanelConstraints);
-
         JButton okButton = new JButton("Ok");
         okButton.addActionListener(e -> {
             caller.getFractalRenderer().setPaletteR(redSlider.getValue() / 100.0 + 1);
@@ -91,7 +85,6 @@ public class SettingsWindow extends AppWindow {
             caller.getFractalRenderer().setPaletteB(blueSlider.getValue() / 100.0 + 1);
 
             caller.getFractalRenderer().setDetailScale(useLowDetailChecked ? 2 : 1);
-            caller.getFractalRenderer().setCheckerboard(useCheckerboardChecked);
 
             caller.getFractalRenderer().render(true);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
