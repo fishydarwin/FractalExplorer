@@ -56,13 +56,13 @@ public class JBoundTimeFractalRenderer extends JPanel {
                     int halfWidth = imageWidth / 2;
                     int halfHeight = imageHeight / 2;
                     if (SwingUtilities.isLeftMouseButton(e)) {
-                        setOffsetX(offsetX + (e.getX() - halfWidth) / zoomScale);
-                        setOffsetY(offsetY + (e.getY() - halfHeight) / zoomScale);
+                        setOffsetX(offsetX + ((float) (e.getX() / detailScale) - halfWidth) / zoomScale);
+                        setOffsetY(offsetY + ((float) (e.getY() / detailScale) - halfHeight) / zoomScale);
                         zoomScale *= 2;
                     }
                     else {
-                        setOffsetX(offsetX - (e.getX() - halfWidth) / zoomScale);
-                        setOffsetY(offsetY - (e.getY() - halfHeight) / zoomScale);
+                        setOffsetX(offsetX - ((float) (e.getX() / detailScale) - halfWidth) / zoomScale);
+                        setOffsetY(offsetY - ((float) (e.getY() / detailScale) - halfHeight) / zoomScale);
                         zoomScale /= 2;
                     }
                     reRender(false);
