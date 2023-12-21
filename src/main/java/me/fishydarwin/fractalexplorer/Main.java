@@ -3,6 +3,7 @@ package me.fishydarwin.fractalexplorer;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.util.SystemInfo;
 import me.fishydarwin.fractalexplorer.model.os.GenericOSAppSetup;
+import me.fishydarwin.fractalexplorer.model.os.LinuxOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.MacOSAppSetup;
 import me.fishydarwin.fractalexplorer.model.os.OSAppSetup;
 import me.fishydarwin.fractalexplorer.view.window.MainWindow;
@@ -24,6 +25,9 @@ public class Main {
         appSetup = new GenericOSAppSetup();
         if (SystemInfo.isMacOS) {
             appSetup = new MacOSAppSetup();
+        }
+        if (SystemInfo.isLinux) {
+            appSetup = new LinuxOSAppSetup();
         }
         appSetup.setupSystemProperties();
 

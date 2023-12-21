@@ -1,7 +1,9 @@
 package me.fishydarwin.fractalexplorer.view.component;
 
+import me.fishydarwin.fractalexplorer.Main;
 import me.fishydarwin.fractalexplorer.model.evaluator.compiler.FEXLCompiler;
 import me.fishydarwin.fractalexplorer.model.evaluator.statement.IStatement;
+import me.fishydarwin.fractalexplorer.model.os.LinuxOSAppSetup;
 import me.fishydarwin.fractalexplorer.utils.FEImageUtils;
 import me.fishydarwin.fractalexplorer.utils.FEMathUtils;
 import me.fishydarwin.fractalexplorer.view.clipboard.ClipboardUtil;
@@ -48,6 +50,7 @@ public class JBoundTimeFractalRenderer extends JPanel {
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
+                if (isRendering.get()) return;
                 if (e.isShiftDown())
                     drawOrbit(e.getX(), e.getY());
                 else if (e.isAltDown()) {
@@ -309,7 +312,9 @@ public class JBoundTimeFractalRenderer extends JPanel {
             evaluatedAlready.clear();
         }
 
-        belongingAppWindow.setResizable(false);
+        if (!(Main.getAppSetup() instanceof LinuxOSAppSetup))
+            belongingAppWindow.setResizable(false);
+
         if (belongingAppWindow instanceof MainWindow)
             ((MainWindow) belongingAppWindow).getRenderProgressBar().setValue(5);
         isRendering.getAndSet(true);
@@ -564,7 +569,8 @@ public class JBoundTimeFractalRenderer extends JPanel {
             }
 
             isRendering.getAndSet(false);
-            belongingAppWindow.setResizable(true);
+            if (!(Main.getAppSetup() instanceof LinuxOSAppSetup))
+                belongingAppWindow.setResizable(true);
 
         }).start();
 
