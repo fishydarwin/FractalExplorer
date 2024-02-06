@@ -56,13 +56,17 @@ public class JBoundTimeFractalRenderer extends JPanel {
                     int halfWidth = imageWidth / 2;
                     int halfHeight = imageHeight / 2;
                     if (SwingUtilities.isLeftMouseButton(e)) {
-                        setOffsetX(offsetX + ((float) (e.getX() / detailScale) - halfWidth) / zoomScale);
-                        setOffsetY(offsetY + ((float) (e.getY() / detailScale) - halfHeight) / zoomScale);
+                        setOffsetX(offsetX +
+                                ((float) (e.getX() * JImagePanel.dpiScale / detailScale) - halfWidth) / zoomScale);
+                        setOffsetY(offsetY +
+                                ((float) (e.getY()  * JImagePanel.dpiScale / detailScale) - halfHeight) / zoomScale);
                         zoomScale *= 2;
                     }
                     else {
-                        setOffsetX(offsetX - ((float) (e.getX() / detailScale) - halfWidth) / zoomScale);
-                        setOffsetY(offsetY - ((float) (e.getY() / detailScale) - halfHeight) / zoomScale);
+                        setOffsetX(offsetX -
+                                ((float) (e.getX() * JImagePanel.dpiScale / detailScale) - halfWidth) / zoomScale);
+                        setOffsetY(offsetY -
+                                ((float) (e.getY() * JImagePanel.dpiScale / detailScale) - halfHeight) / zoomScale);
                         zoomScale /= 2;
                     }
                     reRender(false);
@@ -224,8 +228,8 @@ public class JBoundTimeFractalRenderer extends JPanel {
         Function<Pair<Complex, Complex>, Pair<Complex, Double>> fcxEval;
         fcxEval = FEXLCompiler.generateFunction(fexlInput);
 
-        int x = mouseX / detailScale - halfWidth;
-        int y = mouseY / detailScale - halfHeight;
+        int x = (int) (mouseX * JImagePanel.dpiScale / detailScale) - halfWidth;
+        int y = (int) (mouseY * JImagePanel.dpiScale / detailScale) - halfHeight;
 
         double xScaled = ((double) x + halfWidth / 2.0 + offsetX * zoomScale)
                 / imageWidth * imageScaleX;
@@ -258,7 +262,10 @@ public class JBoundTimeFractalRenderer extends JPanel {
         Color colorBack = new Color((255 - r) / 2, (255 - g) / 2, (255 - b) / 2);
 
         Point2D previousPoint;
-        Point2D nextPoint = new Point2D.Float((float) mouseX / detailScale, (float) mouseY / detailScale);
+        Point2D nextPoint = new Point2D.Float(
+                (float) (mouseX * JImagePanel.dpiScale / detailScale),
+                (float) (mouseY * JImagePanel.dpiScale / detailScale)
+        );
 
         int iterations = 0;
         while (iterations < maxIterations) {
@@ -315,7 +322,9 @@ public class JBoundTimeFractalRenderer extends JPanel {
         isRendering.getAndSet(true);
 
         imagePanel.setImage(
-                new BufferedImage(getWidth() / detailScale, getHeight() / detailScale,
+                new BufferedImage(
+                        (int) (getWidth() * JImagePanel.dpiScale / detailScale),
+                        (int) (getHeight() * JImagePanel.dpiScale / detailScale),
                         BufferedImage.TYPE_INT_RGB)
         );
         int imageWidth = imagePanel.getImage().getWidth();
@@ -379,7 +388,7 @@ public class JBoundTimeFractalRenderer extends JPanel {
 
                 // pre-fill stack
                 {
-                    final int initialRegionSize = 512;
+                    final int initialRegionSize = (int) (512 * JImagePanel.dpiScale);
                     for (int i = chunkXBegin; i < chunkXEnd; i += initialRegionSize) {
                         for (int j = 0; j < imageHeight; j += initialRegionSize) {
                             regionStack.add(Triple.of(i, j, initialRegionSize));

@@ -4,12 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class JImagePanel extends JPanel {
 
     private BufferedImage image;
     private BufferedImage scaledImage;
+
+    public static double dpiScale = 1;
 
     public JImagePanel(BufferedImage image) {
         super();
@@ -77,23 +80,35 @@ public class JImagePanel extends JPanel {
     }
 
     private void resizeImage(int newWidth, int newHeight) {
-        BufferedImage resized = new BufferedImage(newWidth, newHeight, image.getType());
-        Graphics2D g = resized.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g.drawImage(image, 0, 0, newWidth, newHeight,
-                0, 0, image.getWidth(), image.getHeight(), null);
-        g.dispose();
+        BufferedImage resized = new BufferedImage(newWidth * 2, newHeight * 2, image.getType());
+        Graphics2D gfx = resized.createGraphics();
+
+        gfx.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        gfx.drawImage(image, 0, 0, (int) (newWidth * dpiScale), (int) (newHeight * dpiScale),
+                0, 0, image.getWidth(), image.getHeight(),
+                null);
+        gfx.dispose();
         scaledImage = resized;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(scaledImage,
-                (this.getWidth() - scaledImage.getWidth()) / 2,
-                (this.getHeight() - scaledImage.getHeight()) / 2,
+        final Graphics2D newG = (Graphics2D) g;
+        final AffineTransform t = newG.getTransform();
+        final double scaling = t.getScaleX();
+        t.setToScale(1, 1);
+        newG.setTransform(t);
+
+        double scaleFactor = dpiScale / scaling <= 1 ? dpiScale / scaling : 1;
+
+        super.paintComponent(newG);
+        newG.drawImage(scaledImage,
+                0, 0, (int) (this.getWidth() * scaling), (int) (this.getHeight() * scaling),
+                0, 0,
+                (int) (scaledImage.getWidth() * (scaleFactor)),
+                (int) (scaledImage.getHeight() * (scaleFactor)),
                 this);
-        g.dispose();
+        newG.dispose();
     }
 
 }
