@@ -1,5 +1,6 @@
 package me.fishydarwin.fractalexplorer.model.os;
 
+import me.fishydarwin.fractalexplorer.view.component.JImagePanel;
 import me.fishydarwin.fractalexplorer.view.window.AppWindow;
 import me.fishydarwin.fractalexplorer.view.window.MainWindow;
 
@@ -11,6 +12,7 @@ public class MacOSAppSetup extends OSAppSetup {
     public void setupSystemProperties() {
         System.setProperty("apple.awt.application.name", "Fractal Explorer");
         System.setProperty("apple.laf.useScreenMenuBar", "true");
+        JImagePanel.dpiScale = 2; //TODO: this is not the right way to calculate this
     }
 
     @Override

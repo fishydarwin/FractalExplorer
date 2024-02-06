@@ -1,6 +1,7 @@
 package me.fishydarwin.fractalexplorer.view.window;
 
 import me.fishydarwin.fractalexplorer.Main;
+import me.fishydarwin.fractalexplorer.view.component.JImagePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +29,6 @@ public class BoundTimeSettingsWindow extends AppWindow {
     }
 
     private boolean useLowDetailChecked = false;
-    private boolean useCheckerboardChecked = false;
 
     @Override
     public void initComponents() {
@@ -45,14 +45,17 @@ public class BoundTimeSettingsWindow extends AppWindow {
         settingsPanelConstraints.gridy = 0;
         settingsPanelConstraints.gridheight = 1;
         settingsPanelConstraints.gridwidth = 3;
+        settingsPanelConstraints.ipady = 10;
         settingsPanel.add(redSliderLabel, settingsPanelConstraints);
         JSlider redSlider = new JSlider(0, 100,
                 (int) ((caller.getFractalRenderer().getPaletteR() - 1) * 100));
+        redSliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
         redSlider.setPreferredSize(new Dimension(250, 16));
         settingsPanelConstraints.gridy = 1;
         settingsPanel.add(redSlider, settingsPanelConstraints);
 
         JLabel greenSliderLabel = new JLabel("Green Color Offset");
+        greenSliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
         greenSliderLabel.setPreferredSize(new Dimension(250, 16));
         settingsPanelConstraints.gridy = 2;
         settingsPanel.add(greenSliderLabel, settingsPanelConstraints);
@@ -63,6 +66,7 @@ public class BoundTimeSettingsWindow extends AppWindow {
         settingsPanel.add(greenSlider, settingsPanelConstraints);
 
         JLabel blueSliderLabel = new JLabel("Blue Color Offset");
+        blueSliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
         blueSliderLabel.setPreferredSize(new Dimension(250, 16));
         settingsPanelConstraints.gridy = 4;
         settingsPanel.add(blueSliderLabel, settingsPanelConstraints);
@@ -72,11 +76,17 @@ public class BoundTimeSettingsWindow extends AppWindow {
         blueSlider.setPreferredSize(new Dimension(250, 16));
         settingsPanel.add(blueSlider, settingsPanelConstraints);
 
-        useLowDetailChecked = caller.getFractalRenderer().getDetailScale() == 2;
-        JCheckBox useLowDetail = new JCheckBox("Use half-resolution (faster, less HQ)", useLowDetailChecked);
-        useLowDetail.addItemListener(e -> useLowDetailChecked = e.getStateChange() == ItemEvent.SELECTED);
+        JLabel renderScaleSliderLabel = new JLabel("Render Scale");
+        renderScaleSliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        renderScaleSliderLabel.setPreferredSize(new Dimension(250, 16));
         settingsPanelConstraints.gridy = 6;
-        settingsPanel.add(useLowDetail, settingsPanelConstraints);
+        settingsPanel.add(renderScaleSliderLabel, settingsPanelConstraints);
+        JSlider renderScaleSlider = new JSlider(1, 8, (int) (JImagePanel.dpiScale * 2));
+        renderScaleSlider.setSnapToTicks(true);
+        renderScaleSlider.setPaintLabels(true);
+        renderScaleSlider.setPreferredSize(new Dimension(125, 16));
+        settingsPanelConstraints.gridy = 7;
+        settingsPanel.add(renderScaleSlider, settingsPanelConstraints);
 
         JButton okButton = new JButton("Ok");
         okButton.addActionListener(e -> {
@@ -84,7 +94,7 @@ public class BoundTimeSettingsWindow extends AppWindow {
             caller.getFractalRenderer().setPaletteG(greenSlider.getValue() / 100.0 + 1);
             caller.getFractalRenderer().setPaletteB(blueSlider.getValue() / 100.0 + 1);
 
-            caller.getFractalRenderer().setDetailScale(useLowDetailChecked ? 2 : 1);
+            JImagePanel.dpiScale = renderScaleSlider.getValue() / 2.0;
 
             caller.getFractalRenderer().render(true);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
